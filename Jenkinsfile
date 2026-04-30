@@ -1,32 +1,29 @@
-
 pipeline {
   agent any
 
   stages {
+
     stage('Checkout') {
       steps {
-        git 'https://github.com/YOUR_USERNAME/3tier-app.git'
+        git branch: 'main', url: 'https://github.com/VaibhavSoun/3-tier-app-deploy-with-jenkins.git'
       }
     }
 
-    stage('Build') {
+    stage('Build & Deploy') {
       steps {
-        sh 'docker-compose build'
-      }
-    }
-
-    stage('Deploy') {
-      steps {
-        sh '''
-        docker-compose down || true
-        docker-compose up -d
-        '''
+        dir('3tier-app') {
+          sh '''
+          docker-compose down || true
+          docker-compose up --build -d
+          '''
+        }
       }
     }
 
     stage('Health Check') {
       steps {
-        sh 'curl -f http://localhost:3000 || exit 1'
+        sh 'sleep 10'
+        sh 'curl -f http://10.160.0.2:3000 || exit 1'
       }
     }
   }
